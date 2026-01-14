@@ -15,3 +15,16 @@ Motor:
 - LOW er forover, HIGH er bakover
 - Digital pin 15 - kontrollerer den høyre motoren 
 - Digital pin 16 - kontrollerer venstre motor 
+
+Ideer til fortsettelsen på prosjektet: 
+Rasberry Pi:
+- Informasjon blir lagret i "skyen", klarer vi å for eksempel lagre distansen bilen har kjørt,  batteribruk eller klarer å sende ut en varsling når den hører på hindringer
+- Kan vi sende kommandoer fra Rasberry Pi til bilen i nåtid?
+Hindring: 
+- Få zumo-bilen til å stoppe opp for hindringer (evt. at den klarer å kjøre forbi/snu 180 grader)
+Høyreregel:
+- Om vi får til å koble opp sensorer på siden av bilen, er planen å få bilen til å stoppe opp for andre biler som kommer kjørende fra høyre 
+Rødt/grønt lys: 
+- IR-sensorene klarer å se forskjell på rødt og grønt - om vi holder et rødt ark foran bilen skal den forstå at den skal stoppe opp 
+Fartsendring: 
+- Bilen skal ut ifra linjene (fargekoder/strekkoder) på bakken forstå når den skal øke/senke farten 
