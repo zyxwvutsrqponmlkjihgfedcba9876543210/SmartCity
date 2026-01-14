@@ -28,3 +28,5 @@ Rødt/grønt lys:
 - IR-sensorene klarer å se forskjell på rødt og grønt - om vi holder et rødt ark foran bilen skal den forstå at den skal stoppe opp 
 Fartsendring: 
 - Bilen skal ut ifra linjene (fargekoder/strekkoder) på bakken forstå når den skal øke/senke farten 
+Skjerm: 
+- Står på skjermen når den møter på hindringer/rødt lys
