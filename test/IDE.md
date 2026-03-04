@@ -30,3 +30,22 @@ Fartsendring:
 - Bilen skal ut ifra linjene (fargekoder/strekkoder) på bakken forstå når den skal øke/senke farten 
 Skjerm: 
 - Står på skjermen når den møter på hindringer/rødt lys
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+Målet i kjernedelen er et fungerende, distribuert Smart City-system med lokale robotfunksjoner og skybasert overvåkning/styring.
+
+Hver robot håndterer linjefølging og hinderunngåelse lokalt. AVR kjører hard sanntidsaktuering og sikkerhet, mens ESP32 håndterer lokal beslutning og planlegging. På skysiden kjører Raspberry Pi Mosquitto og Node-RED. Robotene publiserer telemetri over MQTT, og Node-RED viser sanntidsstatus i dashboard og kan sende enkle overstyringskommandoer (GO/HOLD/STOP). Mosquitto er kun broker, Node-RED kjører skylogikk.
+
+Navigasjon modelleres som en graf: kryss og lader er noder, og teipveier er kanter. Grafen ligger på ESP32 som node-/kanttabell (med kostnad og manøvertype), og rute beregnes node-til-node (f.eks. A*). Roboten får en destinasjonsnode og følger ruten kant-for-kant.
+ROAD_MODE: følg teip.
+NODE_MODE: ved stopplinje/kryss, les AprilTag for node-ID og velg neste kant.
+
+Teip brukes for kjøreadferd på vei (stopp/sakte/normal/hurtigsoner), mens AprilTags brukes for nodeidentitet og absolutt referanse ved beslutningspunkter. Roboten trenger ikke kjøre over taggen; taggene plasseres i et nodefelt som ligger innenfor det nedovervendte kameraets synsfelt ved stoppposisjon.
+
+Når roboten kjører inn i en tilnærmingssone for et kryss, leser ESP32 kryss-tag og oppdaterer lokal pose, og ber om passeringstillatelse. Hvis GO kommer i tide og banen er fri, passerer roboten kontrollert uten full stopp. Hvis HOLD, eller manglende svar innen x ms før stopplinje, stopper den og venter. Ved skyutfall brukes lokal fallback (høyreregel/nærhetsregel). Etter passering publiseres kryss-forlatt-status over MQTT.
+
+Batteri er simulert og estimeres fra encoder-basert distanse. Ved lavt batteri rutes roboten til ladesonen. Ankomst bekreftes med AprilTag; ESP32 sjekker avstand og orientering mot dockingmål og sender deretter stoppkommando til AVR. Ladetilstand holdes til 80 %, og batteri-/ladestatus publiseres til MQTT og vises i Node-RED.
+
+Styringsprioritet på roboten bør være: nødstopp > hinderstopp > lading > kryssbeslutning > normal linjefølging
