@@ -49,3 +49,14 @@ Når roboten kjører inn i en tilnærmingssone for et kryss, leser ESP32 kryss-t
 Batteri er simulert og estimeres fra encoder-basert distanse. Ved lavt batteri rutes roboten til ladesonen. Ankomst bekreftes med AprilTag; ESP32 sjekker avstand og orientering mot dockingmål og sender deretter stoppkommando til AVR. Ladetilstand holdes til 80 %, og batteri-/ladestatus publiseres til MQTT og vises i Node-RED.
 
 Styringsprioritet på roboten bør være: nødstopp > hinderstopp > lading > kryssbeslutning > normal linjefølging
+
+hvordan den skal kjøre i kryss
+fysisk trafikk lys styrt av node-red (bare for visualisering)
+realistisk simulering av batteri
+starte på parkeringsplass for å kunne velge hvor den skal kjøre i starten
+endring på fart med forskjellige teip som detekteres av linjesensorene
+finne ut om sensor for hindringer fungerer
+planlegging av hvordan byen skal se ut, de forskjellige stedene
+finne ut om velocity control og lokale regler for traffikk fungerer
+legge til skjerm på zumoene for å vise deler av informasjonen i node-red lokalt
+finne ut om alle tre zumoene fungerer og har det de trenger
