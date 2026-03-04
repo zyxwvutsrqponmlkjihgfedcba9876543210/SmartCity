@@ -1,29 +1,21 @@
 #ifndef OBSTACLE_H
 #define OBSTACLE_H
+#include <Zumo32U4.h>
 
-class UltraSonicSensor {
+class ProximitySensor {
 public:
-    // Methods
-    void init(int trigPin, int echoPin, float threshold);
-    float readDistance();
-    bool isObstacleNear();
-    void averageDistance();
+    void init();
+    void read();
+    bool isObstacleAhead(); // front-left or front-right
+    bool isZumoOnLeft(); // right hand rule
+    bool hasRightOfWay();
     void printDebug();
-
 private:
-    // Configuration Data
-    int trigPin;
-    int echoPin;
-    float distance;
-    // Constants
-    float speedOfSound = 0.0343; // cm/µs
-    static const int numReadings = 5;
-    // Measurement Data
-    float readings[numReadings];
-    int readIndex;
-    float total;
-    float average;
-    int threshold;
+    Zumo32U4ProximitySensors prox;
+    uint8_t frontLeft, frontRight, left;
+    static const uint8_t OBSTACLE_THRESHOLD = 4;
+    static const uint8_t INTERSECTION_THRESHOLD = 2;
 };
+
 
 #endif

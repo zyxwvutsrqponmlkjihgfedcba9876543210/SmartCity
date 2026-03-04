@@ -1,17 +1,15 @@
-#include <display.h>
-
-Zumo32U4OLED display;
+#include "display.h"
 int BatteryTimer=6000;
 int DistanceTimer=3000;
 int Timerstate=BatteryTimer;
 
 void displayStartup() {
-    display.clear();
-    display.setLayout21x8();
-    display.gotoXY(0,0);
-    display.print("Kalibr-");
-    display.gotoXY(0,1);
-    display.print("ering");
+    oled.clear();
+    oled.setLayout21x8();
+    oled.gotoXY(0,0);
+    oled.print("Kalibr-");
+    oled.gotoXY(0,1);
+    oled.print("ering");
 }
 
 void displayStatus() {
@@ -29,26 +27,26 @@ void displayStatus() {
         else if (Timerstate==DistanceTimer) {
             Timerstate=BatteryTimer;
         } 
-        display.clear();
+        oled.clear();
     }
     if (showingBattery) {
             //  Batteri-visning
-            display.gotoXY(0, 0);
-            display.print("Batteri:");
+            oled.gotoXY(0, 0);
+            oled.print("Batteri:");
 
-            display.gotoXY(0, 1);
-            display.print(battery_cap);
-            display.gotoXY(7, 1);
-            display.print("%");
+            oled.gotoXY(0, 1);
+            oled.print(battery_cap);
+            oled.gotoXY(7, 1);
+            oled.print("%");
 
     } else {
             //  Avstands-visning
-            display.gotoXY(0, 0);
-            display.print("Avstand:");
-            display.gotoXY(0, 1);
-            display.print(remaining_distance());
-            display.gotoXY(7, 1);
-            display.print("m");
+            oled.gotoXY(0, 0);
+            oled.print("Avstand:");
+            oled.gotoXY(0, 1);
+            oled.print(remaining_distance());
+            oled.gotoXY(7, 1);
+            oled.print("m");
             }
         
     }

@@ -1,71 +1,34 @@
 #include "obstacle.h"
-#include <Arduino.h>  // for pinMode, digitalWrite, pulseIn, Serial
+#include <Arduino.h>
 
-void UltraSonicSensor::init(int trigPin, int echoPin, float threshold) {
-    pinMode(trigPin, OUTPUT);
-    pinMode(echoPin, INPUT);
-    this->trigPin = trigPin;
-    this->echoPin = echoPin;
-    this->threshold = threshold;
-
-    // In main.cpp write with actual values for the parameters sensor.init(trigPin, echoPin, threshold); after UltraSonicSensor sensor;
-    Serial.println("Ultrasonic sensor initialized.");
-
+void ProximitySensor::init(){
+    prox.initThreeSensors();
 }
 
-float UltraSonicSensor::readDistance() {
-    // Pulse Trigger Pin
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    // Read Echo Pin
-    long pulsetime = pulseIn(echoPin, HIGH, 30000);
-    if (pulsetime == 0) {
-        distance = 999.0; // (no obstacle)
-    } else { // calculate distance
-        distance = (pulsetime * speedOfSound) / 2; // in cm
-    }
-    return distance;
+void ProximitySensor::read(){
+    prox.read();
+    left = prox.countsLeftWithLeftLeds();
+    frontLeft = prox.countsFrontWithLeftLeds();
+    frontRight = prox.countsFrontWithRightLeds();
 }
 
-void UltraSonicSensor::averageDistance() {
-    total = 0;
-    readings[readIndex] = distance;
-    readIndex = (readIndex + 1) % numReadings;
-    for (int i = 0; i < numReadings; i++) {
-        total = readings[i] + total;
-
-    }
-    average = total / numReadings;
+bool ProximitySensor::isObstacleAhead(){
+    return (frontLeft > OBSTACLE_THRESHOLD || frontRight > OBSTACLE_THRESHOLD);
 }
 
-
-
-void UltraSonicSensor::printDebug() {
-    static unsigned long lastPrint = 0;
-    unsigned long now = millis();
-    if (now - lastPrint >= 250) { 
-        lastPrint = now;
-        Serial.print("Raw: ");
-        Serial.print(distance);
-        Serial.print(" cm | Avg: ");
-        Serial.print(average);
-        Serial.print(" cm");
-
-        if (isObstacleNear()) {
-            Serial.print(" - OBSTACLE DETECTED");
-        }
-        Serial.println();
-    }
+bool ProximitySensor::isZumoOnLeft(){
+    return (left > INTERSECTION_THRESHOLD);
 }
 
-bool UltraSonicSensor::isObstacleNear() {
-    if (distance <= threshold) {
-        return true;
-    }
-    else {
-        return false;
-    }
+bool ProximitySensor::hasRightOfWay(){
+    return !isZumoOnLeft();
+}
+
+void ProximitySensor::printDebug(){
+    Serial.print("L: ");
+    Serial.print(left);
+    Serial.print("FL: ");
+    Serial.print(frontLeft);
+    Serial.print("FR: ");
+    Serial.println(frontRight);
 }

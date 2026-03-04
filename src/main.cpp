@@ -1,90 +1,67 @@
-#include "globals.h" 
-#include "battery.h" 
+#include "globals.h"
+#include "battery.h"
 #include "calibrate.h"
-#include "display.h" 
+#include "display.h"
 #include "line_follow.h"
 #include "obstacle.h"
+#include "velocity_control.h"
 
-/* void setup() {
-  display.clear();
-  display.setLayout21x8();  // Use normal small font
-  display.gotoXY(0,0);
-  display.print("OLED Test");
-  delay(1000);
-}
-
-void loop() {
-  static uint32_t counter = 0;
-
-  display.gotoXY(0,2);
-  display.print("Count:");
-  display.gotoXY(7,2);
-  display.print(counter);
-
-  counter++;
-  delay(200);
-} */
-
-int offset = 0;
-UltraSonicSensor sensor;
+ProximitySensor proximity;
 
 void setup() {
-  Serial.begin(9600); // Initialize Serial communication
-  displayStartup();
-  pinMode(13, OUTPUT);
-  sensor.init(5, 6, 10.0); // pins and threshold
-  // Initialize shared line sensor object and motors (defined in globals.cpp)
-  lineSensors.initFiveSensors(); // Initialize all five line sensors
-  calibrateLineSensors(lineSensors, motors, 5000); // Calibrate for 5 secondss
-  Serial.println("Calibration complete."); // Indicate completion
+    Serial.begin(9600);
+    displayStartup();
+  
+    // Status LED for proximity reading indicator
+    pinMode(13, OUTPUT);
+    proximity.init();
+    lineSensors.initFiveSensors();
+    calibrateLineSensors(lineSensors, motors, 5000);
+    setupVelocityControl();
+    Serial.println("Calibration complete.");
 }
 
 void loop() {
-  displayStatus();
-  static unsigned long lastUpdate = 0;
-  unsigned long now = millis();
-  static unsigned long Sensortime = 0;
-  chargeBattery();
-
-      if (now - Sensortime > 50) {
-        Sensortime = now; 
-        digitalWrite(13, HIGH);
-        sensor.readDistance();
-        sensor.averageDistance();
-        sensor.printDebug();
-        digitalWrite(13, LOW);
-  } 
-  if (sensor.isObstacleNear()) {
-      Serial.println("Obstacle detected! Stopping motors.");
-      motors.setSpeeds(0, 0); 
-      return;
-}
-    if (now - lastUpdate >= 500) {
-      float deltaTime = (now - lastUpdate) / 1000.0;
-      lastUpdate = now;
-
-      if (!isCharging) {
-        battery_calculator(deltaTime);
-      }
-      checkBatteryState(); 
-    } 
-
-    if (!isCharging) {
-      linefollow(); 
-      crossroads();
-      Serial.print("Offset: ");
-      offset = lineSensors.readLine(sensorValues);
-      Serial.print(offset);
-      Serial.println(""); 
-
-      for (int i = 0; i < 5; i++) {
-        Serial.print("Sensor ");
-        Serial.print(i);
-        Serial.print(": ");
-        Serial.print(sensorValues[i]);
-        Serial.print("   ");
-      }
-      Serial.println();
+    static unsigned long lastBatteryUpdate = 0;
+    unsigned long now = millis();
+    
+    displayStatus();
+    proximity.read();
+  
+    if (proximity.isObstacleAhead()) {
+        // Stop using velocity controller instead of direct motor control
+        setTargetVelocity(0.0f, 0.0f);
+        Serial.println("[Obstacle] Zumo ahead - stopping");
+        
+        // Blink LED while blocked
+        digitalWrite(13, (now / 250) % 2);
+        chargeBattery();
+        return;
     }
-      displayStatus();
-} 
+    
+    if (now - lastBatteryUpdate >= 500) {
+        float deltaTime = (now - lastBatteryUpdate) / 1000.0f;
+        lastBatteryUpdate = now;
+        
+        if (!isCharging) {
+            battery_calculator(deltaTime);
+        }
+        checkBatteryState();
+    }
+    
+    if (!isCharging) {
+        // Line following and intersection handling
+        crossroads(proximity);
+        
+        // Debug output
+        int offset = lineSensors.readLine(sensorValues);
+        Serial.print("Offset: ");
+        Serial.print(offset);
+        Serial.print(" | V_L: ");
+        Serial.print(actualVelocityLeft);
+        Serial.print(" | V_R: ");
+        Serial.println(actualVelocityRight);
+    }
+    
+    displayStatus();
+}

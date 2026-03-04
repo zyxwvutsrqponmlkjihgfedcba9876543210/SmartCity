@@ -1,8 +1,6 @@
 #include "battery.h"
 #include "globals.h"
-#include <zumo32U4Encoders.h>
-
-Zumo32U4Encoders encoders;
+#include "velocity_control.h"
 const float CM_PER_COUNT = 0.055;
 float remaining_distance() {
     const float MAX_RANGE = 50.0; // meters when fully charged
@@ -53,7 +51,7 @@ void checkBatteryState() {
 }
 
 void stopCarIfEmpty() {
-    motors.setSpeeds(0, 0);
+    setTargetVelocity(0.0f, 0.0f);
     Serial.println("Battery empty! Car stopped.");
     // Sensor to detect charging station, digitalRead IR sensor? bool atChargingStation = digitalRead(pin);
     // Zumo line sensors for our line-following path is black tape, so we could use a special area of white tape to act as a charging station marker.

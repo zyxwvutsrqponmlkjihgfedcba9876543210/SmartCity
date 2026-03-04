@@ -3,8 +3,10 @@
 #include <Zumo32U4.h>
 #include "globals.h"
 
+class ProximitySensor;
 void linefollow();
-void crossroads();
+void crossroads(ProximitySensor &prox);
+bool handleIntersectionWithPriority(ProximitySensor &prox);
 void turnRight();
 void turnLeft();
 
